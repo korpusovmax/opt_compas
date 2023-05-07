@@ -8,9 +8,7 @@
                 <p class="tabs__item tabs__item--active">Товар списания</p>
                 <p class="tabs__item">Доп. расходы</p>
             </div>
-            <div class="block">
-                <div class="block__btn"><div class="block__icon"></div><p class="block__text">Добавить строку</p></div>
-            </div>
+
             <TableView></TableView>
         </div>
     </div>
@@ -45,7 +43,7 @@ export default {
     user-select: none;
 }
 .main {
-    height: 100vh;
+    height: 100%;
     display: flex;
     //padding: 0 25px 0 0;
     background-color: #fbfcfd;
@@ -88,40 +86,5 @@ h1 {
     letter-spacing: normal;
     color: #000;
 }
-.block {
-    height: 75px;
-    padding: 20px 0 20px 25px;
-    margin-bottom: 25px;
-    margin-right: 25px;
-    border-radius: 10px;
-    box-shadow: 0 5px 20px 0 rgba(0, 0, 0, 0.07);
-    border: solid 1px #eeeff1;
-    background-color: #fff;
-    &__btn {
-        width: 146px;
-        height: 35px;
-        padding: 10px 15px 10px 10px;
-        display: flex;
-        align-items: center;
-        border-radius: 5px;
-        background-color: #2f8cff;
-    }
-    &__icon {
-        background-image: url('./assets/plus.png');
-        background-repeat: no-repeat;
-        background-size: contain;
-        width: 11px;
-        height: 11px;
-        margin-right: 7px;
-    }
-    &__text {
-        font-size: 14px;
-        font-weight: normal;
-        font-stretch: normal;
-        font-style: normal;
-        line-height: normal;
-        letter-spacing: normal;
-        color: #fff;
-    }
-}
+
 </style>

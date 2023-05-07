@@ -1235,7 +1235,7 @@ function sortable(sortableElements, options) {
                 //el = el.node;
                 if (placeAfter) {
                     insertAfter(element, store(sortableElement).placeholder);
-                    //console.log(sortableElement.parentNode.scrollLeft)
+                    console.log(sortableElement.parentNode.scrollLeft)
                     //insertAfter(element, '<div style="min-height: 45px; min-width: 40px; color:red"></div>');
                 }
                 else {
