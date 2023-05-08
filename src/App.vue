@@ -44,6 +44,7 @@ export default {
 }
 .main {
     height: 100%;
+    min-height: 100vh;
     display: flex;
     //padding: 0 25px 0 0;
     background-color: #fbfcfd;

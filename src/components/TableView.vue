@@ -14,7 +14,7 @@
                 <TableHeaders :headers="headers" @updateWidth="changeWidth"></TableHeaders>
                 <div class="table__lines sortable">
                     <div class="table__line_block" draggable="true" v-for="(line, idx) in lines">
-                        <TableLine :headers="headers" :uid="lines[idx]" :line="table[idx]" @changeInput="changeInput"></TableLine>
+                        <TableLine :headers="headers" :uid="lines[idx]" :line="table[idx]" @changeInput="changeInput" @deleteLine="deleteLine"></TableLine>
                     </div>
                 </div>
             </div>
@@ -48,7 +48,7 @@ export default {
             table: [
                 {key: 0, unit_name: 'Мраморный щебень фр. 2-5 мм', coast: 1231, count: 1, product_name: 'Мраморный щебень', sum: 1231},
                 {key: 1, unit_name: 'Мраморный щебень фр. 2-5 мм', coast: 1231, count: 5, product_name: 'Мраморный щебень', sum: 2500},
-                {key: 2, unit_name: 'Мраморный щебень фр. 2-5 мм', coast: 1231, count: 6, product_name: 'Мраморный щебень', sum: 1},
+                {key: 2, unit_name: 'Мраморный щебень фр. 2-5 мм', coast: 1231, count: 0, product_name: 'Мраморный щебень', sum: 1},
                 {key: 3, unit_name: 'Мраморный щебень фр. 2-5 мм', coast: 1231, count: 8, product_name: 'Мраморный щебень', sum: 1}
             ],
             headers: [
@@ -58,13 +58,18 @@ export default {
                 {name: 'Цена', width: 80},
                 {name: 'Кол-во', width: 80},
                 {name: 'Итого', width: 60}
-            ]
+            ],
+            table_lines_element: null,
         }
     },
     methods: {
         changeInput(name, value, key) {
-            this.table[key][name] = value;
-            this.table[key]['sum'] = this.table[key].count*this.table[key].coast;
+            for (let i = 0; i < this.table.length; i++) {
+                if (this.table[i].key == key) {
+                    this.table[i][name] = value;
+                    this.table[i]['sum'] = this.table[i].count*this.table[i].coast;
+                }
+            }
         },
         changeWidth(id, width) {
             this.headers[id].width = width;
@@ -81,13 +86,32 @@ export default {
             let id = this.lines.length;
             this.table.push({key: id, unit_name: 'test', coast: 666, count: 0, product_name: 'test', sum: 0});
             this.lines.push({id: id});
-            this.destroySortable();
-            this.initSortable();
+            console.log(this.lines)
+            this.$nextTick(() => {
+                this.destroySortable();
+                this.initSortable();
+            });
+
         },
         deleteLine(id) {
-            this.data.splice(id, 1);
+            this.table.splice(id, 1);
+            this.lines.splice(id, 1);
+            this.$nextTick(() => {
+                this.destroySortable();
+                this.initSortable();
+            });
         },
-        initSortable() {
+        initSortable(table_lines=null, create=false) {
+            if (!table_lines) {
+                let element_lines = this.table_lines_element.getElementsByClassName('line__id');
+                for (let i = 0; i < element_lines.length; i++) element_lines[i].innerHTML = i+1;
+                console.log(7)
+            } else {
+                this.table_lines_element = table_lines;
+                let element_lines = this.table_lines_element.getElementsByClassName('line__id');
+                for (let i = 0; i < element_lines.length; i++) element_lines[i].innerHTML = i+1;
+            }
+
             console.log(4)
             let lines = this.lines;
             let copy = [];
@@ -96,57 +120,20 @@ export default {
             let table_sort = sortable('.table__lines', {
                 placeholderClass: 'table__place_holder'
             });
-            table_sort[0].addEventListener('sortupdate', function(e) {
 
-                let idx = e.detail.origin.index, _idx = e.detail.destination.index;
+            let sortUpdate = function(e) {
+                let element_lines = table_lines.getElementsByClassName('line__id');
+                for (let i = 0; i < element_lines.length; i++) element_lines[i].innerHTML = i+1;
 
-                //console.log(idx, _idx);
-                if (copy.length !== lines.length) {
-                    for (let i = copy.length; i < lines.length; i++) {
-                        copy.push(lines[i]);
-                    }
-                    console.log('new elements found', copy, lines);
-                }
-
-                let element = copy.splice(idx, 1);
-
-                copy.splice(_idx, 0, toRaw(element)[0]);
-                for (let i = 0; i < lines.length; i++) {
-                    lines[copy[i].id].id = i;
-                }
-            });
+            };
+            if (create) table_sort[0].addEventListener('sortupdate', sortUpdate);
         },
         destroySortable() {
             sortable('.table__lines', 'destroy');
         }
     },
     mounted() {
-        let lines = this.lines;
-        let copy = [];
-        for (let i = 0; i < lines.length; i++) copy.push({id: i});
-
-        let table_sort = sortable('.table__lines', {
-            placeholderClass: 'table__place_holder'
-        });
-        table_sort[0].addEventListener('sortupdate', function(e) {
-
-            let idx = e.detail.origin.index, _idx = e.detail.destination.index;
-
-            //console.log(idx, _idx);
-            if (copy.length !== lines.length) {
-                for (let i = copy.length; i < lines.length; i++) {
-                    copy.push(lines[i]);
-                }
-                console.log('new elements found', copy, lines);
-            }
-
-            let element = copy.splice(idx, 1);
-
-            copy.splice(_idx, 0, toRaw(element)[0]);
-            for (let i = 0; i < lines.length; i++) {
-                lines[copy[i].id].id = i;
-            }
-        });
+        this.initSortable(document.getElementsByClassName('table__lines')[0], true);
 
         //add settings popup events
         const settings_icon = document.getElementsByClassName('table_block__settings_icon')[0];
