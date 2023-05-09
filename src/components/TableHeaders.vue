@@ -1,6 +1,6 @@
 <template>
     <div class="headers">
-        <div class="headers__content" v-for="(header, idx) in headers">
+        <div v-show="!mobile" class="headers__content" v-for="(header, idx) in headers">
             <div class="headers__column" :style="{width : header.width+'px'}">
                 <p class="headers__text"><strong>{{header.name}}</strong></p>
             </div>
@@ -14,6 +14,10 @@ export default {
     props: {
         headers: {
             type: Array,
+            required: true
+        },
+        mobile: {
+            type: Boolean,
             required: true
         }
     },
@@ -54,7 +58,9 @@ export default {
 
 <style lang="scss" scoped>
 .headers {
-    height: 42px;
+    @media (min-width: 768px) {
+        height: 42px;
+    }
     display: flex;
     border-bottom: solid 1px #eeeff1;
     border-top: solid 1px #eeeff1;

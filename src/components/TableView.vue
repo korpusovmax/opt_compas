@@ -11,15 +11,16 @@
                 </div>
             </div>
             <div class="table">
-                <TableHeaders :headers="headers" @updateWidth="changeWidth"></TableHeaders>
+                <TableHeaders :mobile="mobile" :headers="headers" @updateWidth="changeWidth"></TableHeaders>
                 <div class="table__lines sortable">
                     <div class="table__line_block" draggable="true" v-for="(line, idx) in lines">
-                        <TableLine :headers="headers" :uid="lines[idx]" :line="table[idx]" @changeInput="changeInput" @deleteLine="deleteLine"></TableLine>
+                        <TableLine :headers="headers" :uid="lines[idx]" :line="table[idx]" :mobile="mobile" @changeInput="changeInput" @deleteLine="deleteLine"></TableLine>
                     </div>
                 </div>
             </div>
-            <TableInformation :summary="getSummary()"></TableInformation>
+            <TableInformation v-if="!mobile" :summary="getSummary()"></TableInformation>
         </div>
+        <TableInformation v-if="mobile" :summary="getSummary()"></TableInformation>
     </div>
 </template>
 
@@ -39,17 +40,16 @@ export default {
     },
     data() {
         return {
+            mobile: false,
             lines: [
                 {id: 0},
                 {id: 1},
-                {id: 2},
-                {id: 3},
+                {id: 2}
             ],
             table: [
                 {key: 0, unit_name: 'Мраморный щебень фр. 2-5 мм', coast: 1231, count: 1, product_name: 'Мраморный щебень', sum: 1231},
-                {key: 1, unit_name: 'Мраморный щебень фр. 2-5 мм', coast: 1231, count: 5, product_name: 'Мраморный щебень', sum: 2500},
-                {key: 2, unit_name: 'Мраморный щебень фр. 2-5 мм', coast: 1231, count: 0, product_name: 'Мраморный щебень', sum: 1},
-                {key: 3, unit_name: 'Мраморный щебень фр. 2-5 мм', coast: 1231, count: 8, product_name: 'Мраморный щебень', sum: 1}
+                {key: 1, unit_name: 'Мраморный щебень фр. 2-5 мм, 25 кг', coast: 1100, count: 5, product_name: 'Мраморный щебень', sum: 5500},
+                {key: 1, unit_name: 'Мраморный щебень, 6 кг', coast: 1150, count: 2, product_name: 'Мраморный щебень', sum: 2300},
             ],
             headers: [
                 {name: 'Номер', width: 60},
@@ -63,6 +63,9 @@ export default {
         }
     },
     methods: {
+        onResize() {
+            this.mobile = window.innerWidth <= 768;
+        },
         changeInput(name, value, key) {
             for (let i = 0; i < this.table.length; i++) {
                 if (this.table[i].key == key) {
@@ -75,8 +78,10 @@ export default {
             this.headers[id].width = width;
         },
         getSummary() {
-            let result = {sum: 0, count: 0};
+            let result = {sum: 0, count: 0, weight: 0};
             for (let i = 0; i < this.table.length; i++) {
+                let weight_matches = this.table[i].unit_name.match(/[0-9]*\s?(кг)/);
+                if (weight_matches) result.weight += parseInt(weight_matches[0].match(/[0-9]*/)[0])*this.table[i].count;
                 result.sum += this.table[i].sum;
                 result.count += this.table[i].count;
             }
@@ -105,14 +110,12 @@ export default {
             if (!table_lines) {
                 let element_lines = this.table_lines_element.getElementsByClassName('line__id');
                 for (let i = 0; i < element_lines.length; i++) element_lines[i].innerHTML = i+1;
-                console.log(7)
             } else {
                 this.table_lines_element = table_lines;
                 let element_lines = this.table_lines_element.getElementsByClassName('line__id');
                 for (let i = 0; i < element_lines.length; i++) element_lines[i].innerHTML = i+1;
             }
 
-            console.log(4)
             let lines = this.lines;
             let copy = [];
             for (let i = 0; i < lines.length; i++) copy.push({id: i});
@@ -130,9 +133,12 @@ export default {
         },
         destroySortable() {
             sortable('.table__lines', 'destroy');
-        }
+        },
     },
     mounted() {
+        window.addEventListener('resize', this.onResize);
+        this.onResize();
+
         this.initSortable(document.getElementsByClassName('table__lines')[0], true);
 
         //add settings popup events
@@ -155,9 +161,12 @@ export default {
 <style lang="scss">
 .block {
     height: 75px;
-    padding: 20px 0 20px 25px;
     margin-bottom: 25px;
+    @media (max-width: 768px) {
+        margin-bottom: 20px;
+    }
     margin-right: 25px;
+    padding: 20px 0 20px 25px;
     border-radius: 10px;
     box-shadow: 0 5px 20px 0 rgba(0, 0, 0, 0.07);
     border: solid 1px #eeeff1;
@@ -228,15 +237,20 @@ export default {
     margin-bottom: 25px;
     //width: 100%;
     max-width: 100%;
+    @media (min-width: 768px) {
+        padding: 9px 0 0 0;
+        border-radius: 10px;
+        box-shadow: 0 5px 20px 0 rgba(0, 0, 0, 0.07);
+        border: solid 1px #eeeff1;
+        background-color: #fff;
+    }
 
-    padding: 9px 0 0 0;
-    border-radius: 10px;
-    box-shadow: 0 5px 20px 0 rgba(0, 0, 0, 0.07);
-    border: solid 1px #eeeff1;
-    background-color: #fff;
 
     &__settings_icon {
         margin: 0 15px 8px auto;
+        @media (max-width: 768px) {
+            display: none;
+        }
         width: 15px;
         height: 15px;
         background-repeat: no-repeat;
@@ -249,12 +263,15 @@ export default {
     }
 }
 .table {
-    display: flex;
-    flex-direction: column;
     //justify-items: end;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    padding-bottom: 180px;
+
+    @media (min-width: 768px) {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 180px;
+    }
 }
 .table__place_holder {
     user-select: none;

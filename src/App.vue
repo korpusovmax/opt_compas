@@ -78,7 +78,7 @@ export default {
 }
 h1 {
     margin-bottom: 25px;
-    height: 31px;
+    padding-right: 25px;
     font-size: 30px;
     font-weight: normal;
     font-stretch: normal;

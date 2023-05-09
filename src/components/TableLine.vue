@@ -1,10 +1,11 @@
 <template xmlns="http://www.w3.org/1999/html">
     <div class="line" ref="line">
-        <div class="line__column" :style="{width: headers[0].width+'px'}">
+        <div v-show="!mobile" class="line__column" :style="{width: headers[0].width+'px'}">
             <div class="line__menu_icon"></div>
             <p class="line__id">{{uid.id+1}}</p>
         </div>
         <div class="line__column" :style="{width: headers[1].width+'px'}">
+            <p class="line__label">{{ headers[1].name }}</p>
             <div class="line__more_icon"></div>
             <div class="popup_delete">
                 <div class="popup_delete__area">
@@ -12,16 +13,20 @@
                 </div>
             </div>
         </div>
-        <div class="line__column" :style="{width: headers[2].width+'px'}">
+        <div class="line__column" :style="{width: mobile ? '100%' : headers[2].width+'px'}">
+            <p class="line__label">{{ headers[2].name }}</p>
             <input type="text" class="line__input" :value="line.unit_name" @input="changeInput('unit_name', $event.target.value)">
         </div>
-        <div class="line__column" :style="{width: headers[3].width+'px'}" @input="changeInput('coast', $event.target.value, true)">
+        <div class="line__column" :style="{width: mobile ? '100%' : headers[3].width+'px'}" @input="changeInput('coast', $event.target.value, true)">
+            <p class="line__label">{{ headers[3].name }}</p>
             <input type="text" class="line__input" :value="line.coast">
         </div>
-        <div class="line__column" :style="{width: headers[4].width+'px'}" @input="changeInput('count', $event.target.value, true)">
+        <div class="line__column" :style="{width: mobile ? '100%' : headers[4].width+'px'}" @input="changeInput('count', $event.target.value, true)">
+            <p class="line__label">{{ headers[4].name }}</p>
             <input type="text" class="line__input" :value="line.count">
         </div>
-        <div class="line__column" :style="{width: headers[5].width+'px'}">
+        <div class="line__column" :style="{width: mobile ? '100%' : headers[5].width+'px'}">
+            <p class="line__label">{{ headers[5].name }}</p>
             <p class="line__text">{{ line.sum }}</p>
         </div>
     </div>
@@ -53,6 +58,10 @@ export default {
         },
         headers: {
             type: Array,
+            required: true
+        },
+        mobile: {
+            type: Boolean,
             required: true
         }
     },
@@ -106,10 +115,30 @@ export default {
 <style lang="scss" scoped>
 .line {
     user-select: none;
-    height: 45px;
+    flex-wrap: wrap;
     display: flex;
-    align-items: center;
-    width: max-content;
+    flex-direction: column;
+    margin-top: 5px;
+    @media (min-width: 768px) {
+        flex-direction: row;
+        flex-wrap: nowrap;
+        height: 45px;
+        margin: 0;
+        align-items: center;
+        width: max-content;
+    }
+    @media (max-width: 768px) {
+        padding: 0 0 25px 0;
+        border-radius: 10px;
+        box-shadow: 0 5px 20px 0 rgba(0, 0, 0, 0.07);
+        border: solid 1px #eeeff1;
+        background-color: #fff;
+    }
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+
     &__column {
         padding-left: 10px;
         display: flex;
@@ -119,6 +148,11 @@ export default {
         white-space:nowrap;
         text-overflow: ellipsis;
         padding-right: 10px;
+        @media (max-width: 768px) {
+            margin-top: 15px;
+            flex-direction: column;
+            align-items: start;
+        }
     }
     &__column:first-child {
         padding-left: 15px;
@@ -163,7 +197,21 @@ export default {
     &:last-child .line__input{
         margin-right: 0;
     }
+    &__label {
+        @media (min-width: 768px) {
+            display: none;
+        }
+        margin-bottom: 5px;
+        font-size: 10px;
+        font-weight: normal;
+        font-stretch: normal;
+        font-style: normal;
+        line-height: normal;
+        letter-spacing: normal;
+        color: #8f8f8f;
+    }
 }
+
 .popup_delete {
     position: absolute;
     //right: 40px;
