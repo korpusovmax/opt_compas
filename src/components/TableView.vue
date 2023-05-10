@@ -9,6 +9,11 @@
                 <div class="popup__area">
                     <p class="popup__text">Отображение столбцов</p><div class="popup__icon"></div>
                 </div>
+                <div class="popup__items">
+                    <div v-for="(header, idx) in headers">
+                        <CheckBoxItem v-if="idx>1" :header="header" @changeActiveState="changeColumnVisible(idx)"></CheckBoxItem>
+                    </div>
+                </div>
             </div>
             <div class="table">
                 <TableHeaders :mobile="mobile" :headers="headers" @updateWidth="changeWidth"></TableHeaders>
@@ -30,10 +35,12 @@ import TableHeaders from "@/components/TableHeaders.vue";
 import {toRaw} from "vue";
 import TableInformation from "@/components/TableInformation.vue";
 import sortable from "../assets/lib/sortable";
+import CheckBoxItem from "@/components/CheckBoxItem.vue";
 
 
 export default {
     components: {
+        CheckBoxItem,
         TableInformation,
         TableHeaders,
         TableLine
@@ -52,12 +59,12 @@ export default {
                 {key: 1, unit_name: 'Мраморный щебень, 6 кг', coast: 1150, count: 2, product_name: 'Мраморный щебень', sum: 2300},
             ],
             headers: [
-                {name: 'Номер', width: 60},
-                {name: 'Действие', width: 60},
-                {name: 'Наименование единицы', width: 230},
-                {name: 'Цена', width: 80},
-                {name: 'Кол-во', width: 80},
-                {name: 'Итого', width: 60}
+                {name: 'Номер', width: 60, active: true},
+                {name: 'Действие', width: 60, active: true},
+                {name: 'Наименование единицы', width: 230, active: true},
+                {name: 'Цена', width: 80, active: true},
+                {name: 'Кол-во', width: 80, active: true},
+                {name: 'Итого', width: 60, active: true}
             ],
             table_lines_element: null,
         }
@@ -106,6 +113,9 @@ export default {
                 this.initSortable();
             });
         },
+        changeColumnVisible(id) {
+            this.headers[id].active = !this.headers[id].active;
+        },
         initSortable(table_lines=null, create=false) {
             if (!table_lines) {
                 let element_lines = this.table_lines_element.getElementsByClassName('line__id');
@@ -144,16 +154,28 @@ export default {
         //add settings popup events
         const settings_icon = document.getElementsByClassName('table_block__settings_icon')[0];
         const popup = document.getElementsByClassName('popup')[0];
-        let popup_active = false;
-        settings_icon.addEventListener('click', function () {
-            if (popup_active) {
-                popup.style.display = "none";
-                popup_active = false;
-            } else {
-                popup.style.display = "block";
-                popup_active = true;
-            }
-        })
+        const popup_items = document.getElementsByClassName('popup__items')[0];
+        const nextTick = this.$nextTick;
+
+        const clickEvent = function (e) {
+            settings_icon.removeEventListener('mousedown', clickEvent);
+            document.addEventListener('mousedown', cancelPopupEvent);
+            e.stopPropagation();
+            popup.style.display = "flex";
+        };
+
+        function cancelPopupEvent(e) {
+            e.stopPropagation();
+            popup.style.display = "none";
+            popup_items.style.display = "none";
+            document.removeEventListener('mousedown', cancelPopupEvent);
+            settings_icon.addEventListener('mousedown', clickEvent)
+        }
+        popup.addEventListener('mousedown', function (e) {
+            popup_items.style.display = "block";
+            e.stopPropagation();
+        });
+        settings_icon.addEventListener('mousedown', clickEvent);
     }
 }
 </script>
@@ -202,8 +224,9 @@ export default {
     position: absolute;
     right: 40px;
     display: none;
+    flex-direction: column;
     width: 179px;
-    height: 29px;
+
     padding: 7px 9.9px 7px 10px;
     border-radius: 5px;
     box-shadow: 0 0 3px 0 #000, inset 0 1px 2px 0 rgba(255, 255, 255, 0.5);
@@ -229,6 +252,10 @@ export default {
         background-size: contain;
         background-repeat: no-repeat;
         background-image: url('../assets/arrow.png');
+    }
+
+    &__items {
+        display: none;
     }
 }
 

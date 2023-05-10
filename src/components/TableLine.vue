@@ -13,19 +13,19 @@
                 </div>
             </div>
         </div>
-        <div class="line__column" :style="{width: mobile ? '100%' : headers[2].width+'px'}">
+        <div class="line__column" v-show="headers[2].active" :style="{width: mobile ? '100%' : headers[2].width+'px'}">
             <p class="line__label">{{ headers[2].name }}</p>
             <input type="text" class="line__input" :value="line.unit_name" @input="changeInput('unit_name', $event.target.value)">
         </div>
-        <div class="line__column" :style="{width: mobile ? '100%' : headers[3].width+'px'}" @input="changeInput('coast', $event.target.value, true)">
+        <div class="line__column" v-show="headers[3].active" :style="{width: mobile ? '100%' : headers[3].width+'px'}" @input="changeInput('coast', $event.target.value, true)">
             <p class="line__label">{{ headers[3].name }}</p>
             <input type="text" class="line__input" :value="line.coast">
         </div>
-        <div class="line__column" :style="{width: mobile ? '100%' : headers[4].width+'px'}" @input="changeInput('count', $event.target.value, true)">
+        <div class="line__column" v-show="headers[4].active" :style="{width: mobile ? '100%' : headers[4].width+'px'}" @input="changeInput('count', $event.target.value, true)">
             <p class="line__label">{{ headers[4].name }}</p>
             <input type="text" class="line__input" :value="line.count">
         </div>
-        <div class="line__column" :style="{width: mobile ? '100%' : headers[5].width+'px'}">
+        <div class="line__column" v-show="headers[5].active" :style="{width: mobile ? '100%' : headers[5].width+'px'}">
             <p class="line__label">{{ headers[5].name }}</p>
             <p class="line__text">{{ line.sum }}</p>
         </div>
@@ -77,36 +77,17 @@ export default {
             document.addEventListener('mousedown', cancelEvent);
         })
         let deleteEvent = function (e) {
-            console.log('delete')
             emit('deleteLine', key);
         }
         let cancelEvent = function(e) {
-            console.log('cancel')
             popup.style.display = "none";
             popup.removeEventListener('mousedown', deleteEvent);
             document.removeEventListener('mousedown', cancelEvent);
         }
-        this.element = document.getElementsByClassName('line');
-        this.parent = document.getElementsByClassName('table__lines');
     },
     data() {
         return {
-            index: 0,
-            element: null,
-            parent: null
-        }
-    },
-    computed: {
-        getIndex() {
-            try {
-                console.log(this.parent.children)
-                console.log(Array.from(this.parent.children).indexOf(this.element))
-                return Array.from(this.parent.children).indexOf(this.element);
-            } catch (E) {
-                console.log('a')
-                return 0
-            }
-
+            index: 0
         }
     }
 }

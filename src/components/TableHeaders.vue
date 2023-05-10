@@ -1,7 +1,7 @@
 <template>
     <div class="headers">
         <div v-show="!mobile" class="headers__content" v-for="(header, idx) in headers">
-            <div class="headers__column" :style="{width : header.width+'px'}">
+            <div v-show="header.active" class="headers__column" :style="{width : header.width+'px'}">
                 <p class="headers__text"><strong>{{header.name}}</strong></p>
             </div>
         </div>
